@@ -1,0 +1,38 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      tagLevel:
+        description: "tag level for release"
+        type: choice
+        required: true
+        options:
+          - major
+          - minor
+          - patch
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Get Latest Tag
+        uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
+
+      - name: Create New Tag
+        uses: actions-ecosystem/action-bump-semver@v1
+        id: bump-semver
+        with:
+          current_version: ${{ steps.get-latest-tag.outputs.tag }}
+          level: ${{ inputs.tagLevel }}
+
+      - name: Create Release Notes
+        id: create-release
+        run: |
+          curl -f -X POST -H "Accept: application/vnd.github.v3+json" \
+            -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/releases \
+            -d '{"tag_name":"${{ steps.bump-semver.outputs.new_version }}", "prerelease":false, "generate_release_notes":true}'
