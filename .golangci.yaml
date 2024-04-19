@@ -1,18 +1,18 @@
 issues:
-    exclude:
-      - _test\.go
-  
-  linters:
-    enable:
-      - errcheck
-      - gosimple
-      - govet
-      - ineffassign
-      - unused
-      - staticcheck
-      - errorlint
-      - goconst
-      - gosec
-      - gofmt
-      - goimports
-      - misspell
+  exclude:
+    - _test\.go
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - unused
+    - staticcheck
+    - errorlint
+    - goconst
+    - gosec
+    - gofmt
+    - goimports
+    - misspell
