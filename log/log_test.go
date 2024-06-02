@@ -7,6 +7,7 @@ import (
 
 	"github.com/reyhanmichiels/go-pkg/appcontext"
 	"github.com/reyhanmichiels/go-pkg/codes"
+	myerr "github.com/reyhanmichiels/go-pkg/errors"
 )
 
 func Test_log_Info(t *testing.T) {
@@ -69,10 +70,34 @@ func Test_log_Info(t *testing.T) {
 			name: "error",
 			args: args{
 				ctx: mockCtx,
-				obj: errors.New("test log error"),
+				obj: errors.New("test error"),
 			},
 			mockFunc: func(mockLogger Interface, arg args) {
 				mockLogger.Error(mockCtx, arg.obj)
+			},
+		}, {
+			name: "error with codes",
+			args: args{
+				ctx: mockCtx,
+				obj: myerr.NewWithCode(codes.CodeBadRequest, "test error with code"),
+			},
+			mockFunc: func(mockLogger Interface, arg args) {
+				mockLogger.Error(mockCtx, arg.obj)
+			},
+		},
+		{
+			name: "fatal",
+			args: args{
+				ctx: mockCtx,
+				obj: "test log fatal",
+			},
+			mockFunc: func(mockLogger Interface, arg args) {
+				defer func() {
+					if err := recover(); err != nil {
+						mockLogger.Panic(err)
+					}
+				}()
+				panic(myerr.NewWithCode(codes.CodeBadRequest, "test panic"))
 			},
 		},
 	}
