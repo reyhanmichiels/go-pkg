@@ -1,6 +1,8 @@
 package codes
 
 import (
+	"math"
+
 	"github.com/reyhanmichiels/go-pkg/language"
 	"github.com/reyhanmichiels/go-pkg/operator"
 )
@@ -14,6 +16,8 @@ type DisplayMessage struct {
 	Title      string `json:"title"`
 	Body       string `json:"body"`
 }
+
+const NoCode Code = math.MaxUint32
 
 // success code
 const (

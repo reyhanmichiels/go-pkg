@@ -6,16 +6,21 @@ import (
 	"log"
 	"log/slog"
 	"os"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/reyhanmichiels/go-pkg/appcontext"
+	"github.com/reyhanmichiels/go-pkg/errors"
 )
 
 var (
-	once sync.Once
-	now  = time.Now
+	once             sync.Once
+	now              = time.Now
+	CustomLevelNames = map[slog.Leveler]string{
+		LevelPanic: "PANIC",
+	}
 )
 
 const (
@@ -23,6 +28,10 @@ const (
 	levelInfo  = "info"
 	levelWarn  = "warn"
 	levelError = "error"
+	levelPanic = "panic"
+
+	// customize slog level
+	LevelPanic = slog.Level(12)
 )
 
 type Interface interface {
@@ -30,13 +39,13 @@ type Interface interface {
 	Debug(ctx context.Context, obj any)
 	Warn(ctx context.Context, obj any)
 	Error(ctx context.Context, obj any)
+	Panic(obj any)
 }
 
 type Config struct {
 	Level string
 }
 
-// TODO: implement fatal logging
 type logger struct {
 	log *slog.Logger
 }
@@ -47,12 +56,13 @@ func Init(cfg Config) Interface {
 	once.Do(func() {
 		level, err := parsingLogLevel(cfg.Level)
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 
 		slogLogger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-			Level:     level,
-			AddSource: true,
+			Level:       level,
+			AddSource:   true,
+			ReplaceAttr: getCustomLevelName,
 		}))
 	})
 
@@ -97,6 +107,15 @@ func (l *logger) Error(ctx context.Context, obj any) {
 	)
 }
 
+func (l *logger) Panic(obj any) {
+	l.log.LogAttrs(
+		context.Background(),
+		LevelPanic,
+		l.getCaller(obj),
+		l.getPanicStacktrace(),
+	)
+}
+
 func parsingLogLevel(text string) (slog.Level, error) {
 	level := strings.ToLower(text)
 
@@ -109,6 +128,8 @@ func parsingLogLevel(text string) (slog.Level, error) {
 		return slog.LevelDebug, nil
 	case levelWarn:
 		return slog.LevelWarn, nil
+	case levelPanic:
+		return LevelPanic, nil
 
 	}
 
@@ -143,15 +164,44 @@ func (l *logger) getFieldsFromContext(ctx context.Context) []slog.Attr {
 	return fields
 }
 
-// TODO: improve error caller
 func (l *logger) getCaller(obj any) string {
 	switch tr := obj.(type) {
 	case error:
-		return tr.Error()
+		caller, err := errors.GetCallerString(tr)
+		if err != nil {
+			return tr.Error()
+		}
+
+		return caller
 	case string:
 		return tr
 	default:
 		return fmt.Sprintf("%#v", tr)
 	}
+}
 
+func getCustomLevelName(groups []string, a slog.Attr) slog.Attr {
+	if a.Key == slog.LevelKey {
+		level := a.Value.Any().(slog.Level)
+
+		levelLabel, exists := CustomLevelNames[level]
+		if !exists {
+			levelLabel = level.String()
+		}
+
+		a.Value = slog.StringValue(levelLabel)
+	}
+
+	return a
+}
+
+func (l *logger) getPanicStacktrace() slog.Attr {
+	errStackAttr := []any{}
+	errStack := strings.Split(strings.ReplaceAll(string(debug.Stack()), "\t", ""), "\n")
+
+	for i, v := range errStack {
+		errStackAttr = append(errStackAttr, slog.String(fmt.Sprintf("stack - %v", i), v))
+	}
+
+	return slog.Group("stack_trace", errStackAttr...)
 }

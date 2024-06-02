@@ -5,3 +5,7 @@ run-tests:
 .PHONY: lint
 lint:
 	@`go env GOPATH`/bin/golangci-lint run
+
+.PHONY: mock
+mock:
+	@`go env GOPATH`/bin/mockgen -source ./$(util)/$(subutil).go -destination ./tests/mock/$(util)/$(subutil).go
