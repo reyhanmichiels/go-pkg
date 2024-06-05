@@ -36,6 +36,7 @@ type sqlBuilder struct {
 	pageValue     int64
 	limitValue    int64
 	mapDBTagExist map[string]bool
+	option        *Option
 }
 
 func NewSQLQueryBuilder(paramTag, dbTag string, option *Option) *sqlBuilder {
@@ -44,6 +45,7 @@ func NewSQLQueryBuilder(paramTag, dbTag string, option *Option) *sqlBuilder {
 		dbTag:         dbTag,
 		paramTag:      paramTag,
 		mapDBTagExist: map[string]bool{},
+		option:        option,
 	}
 
 	if option != nil {
@@ -95,6 +97,8 @@ func (s *sqlBuilder) Build(param interface{}) (string, []interface{}, string, []
 		return "", nil, "", nil, err
 	}
 	newCountQuery = sqlx.Rebind(sqlx.QUESTION, newCountQuery)
+
+	s.restoreStruct()
 
 	return newQuery, newArgs, newCountQuery, newCountArgs, nil
 }
@@ -163,4 +167,26 @@ func (s *sqlBuilder) buildQuery(buildOption BuildQueryOption) {
 
 func (s *sqlBuilder) getBindVar() string {
 	return "?"
+}
+
+func (s *sqlBuilder) restoreStruct() {
+	*s = sqlBuilder{
+		rawQuery:      bytes.NewBufferString(" WHERE 1=1"),
+		dbTag:         s.dbTag,
+		paramTag:      s.paramTag,
+		mapDBTagExist: map[string]bool{},
+		disableLimit:  s.disableLimit,
+	}
+
+	if s.option != nil {
+		if s.option.DisableLimit {
+			s.disableLimit = true
+		}
+		if s.option.IsActive {
+			s.rawQuery.WriteString(" AND status=1")
+		}
+		if s.option.IsInactive {
+			s.rawQuery.WriteString(" AND status=-1")
+		}
+	}
 }
