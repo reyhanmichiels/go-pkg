@@ -12,12 +12,14 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Get Latest Tag
-        id: get-latest-tag
         run: |
           git config --global --add safe.directory /github/workspace
           echo "tag=$(git tag -l --sort=v:refname | tail -1)" >> "$GITHUB_OUTPUT"
+        id: get-latest-tag
 
       - name: Create New Tag
         uses: reyhanmichiels/action-bump-semver@v1.0.8
