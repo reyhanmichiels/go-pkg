@@ -84,7 +84,9 @@ func (s *sqlBuilder) Build(param interface{}) (string, []interface{}, string, []
 
 	s.processSort()
 
-	s.processPagination()
+	if !s.disableLimit {
+		s.processPagination()
+	}
 
 	newQuery, newArgs, err := sqlx.In(s.rawQuery.String()+";", s.fieldValues...)
 	if err != nil {
