@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/reyhanmichiels/go-pkg/codes"
 	"github.com/reyhanmichiels/go-pkg/errors"
+	"github.com/reyhanmichiels/go-pkg/operator"
 )
 
 type Option struct {
@@ -29,9 +31,11 @@ type sqlBuilder struct {
 	dbTag         string
 	paramTag      string
 	rawQuery      *bytes.Buffer
+	rawUpdate     *bytes.Buffer
 	disableLimit  bool
 	param         reflect.Value
 	fieldValues   []any
+	updateValues  []any
 	sortValue     []string
 	pageValue     int64
 	limitValue    int64
@@ -42,6 +46,7 @@ type sqlBuilder struct {
 func NewSQLQueryBuilder(paramTag, dbTag string, option *Option) *sqlBuilder {
 	qb := sqlBuilder{
 		rawQuery:      bytes.NewBufferString(" WHERE 1=1"),
+		rawUpdate:     bytes.NewBufferString(" SET"),
 		dbTag:         dbTag,
 		paramTag:      paramTag,
 		mapDBTagExist: map[string]bool{},
@@ -78,13 +83,15 @@ func (s *sqlBuilder) Build(param interface{}) (string, []interface{}, string, []
 
 	s.param = paramReflectVal
 
-	s.processParam(paramReflectVal, "", "")
+	s.processParam(paramReflectVal, "", "", false)
 
 	countQuery := s.rawQuery.Bytes()
 
 	s.processSort()
 
-	s.processPagination()
+	if !s.disableLimit {
+		s.processPagination()
+	}
 
 	newQuery, newArgs, err := sqlx.In(s.rawQuery.String()+";", s.fieldValues...)
 	if err != nil {
@@ -101,6 +108,54 @@ func (s *sqlBuilder) Build(param interface{}) (string, []interface{}, string, []
 	s.restoreStruct()
 
 	return newQuery, newArgs, newCountQuery, newCountArgs, nil
+}
+
+func (s *sqlBuilder) BuildUpdate(updateParam interface{}, queryParam interface{}) (string, []interface{}, error) {
+	var (
+		newQuery string
+		newArgs  []interface{}
+	)
+
+	updateParamReflectVal := reflect.ValueOf(updateParam)
+	if updateParamReflectVal.Kind() != reflect.Ptr || updateParamReflectVal.IsNil() {
+		return newQuery, newArgs, errors.NewWithCode(codes.CodeInvalidValue, "passed update param should be a pointer and cannot be nil")
+	}
+
+	queryParamReflectVal := reflect.ValueOf(queryParam)
+	if queryParamReflectVal.Kind() != reflect.Ptr || queryParamReflectVal.IsNil() {
+		return newQuery, newArgs, errors.NewWithCode(codes.CodeInvalidValue, "passed query param should be a pointer and cannot be nil")
+	}
+
+	group := sync.WaitGroup{}
+	group.Add(2)
+
+	go func() {
+		defer group.Done()
+		s.processParam(updateParamReflectVal, "", "", true)
+	}()
+
+	go func() {
+		defer group.Done()
+		s.processParam(queryParamReflectVal, "", "", false)
+	}()
+
+	group.Wait()
+
+	newQueryParam, newQueryArgs, err := sqlx.In(s.rawQuery.String()+";", s.fieldValues...)
+	if err != nil {
+		return "", nil, err
+	}
+	newQueryParam = sqlx.Rebind(sqlx.QUESTION, newQueryParam)
+
+	if strings.TrimSpace(newQueryParam) == "WHERE 1=1;" || strings.TrimSpace(s.rawUpdate.String()) == "SET" {
+		return "", nil, errors.NewWithCode(codes.CodeInvalidValue, "generated query or update clause cannot be empty")
+	}
+
+	newQuery = s.rawUpdate.String() + newQueryParam
+	newArgs = append(newArgs, s.updateValues...)
+	newArgs = append(newArgs, newQueryArgs...)
+
+	return newQuery, newArgs, nil
 }
 
 func (s *sqlBuilder) buildQuery(buildOption BuildQueryOption) {
@@ -163,6 +218,23 @@ func (s *sqlBuilder) buildQuery(buildOption BuildQueryOption) {
 
 	s.rawQuery.WriteString(" " + buildOption.dbTagValue + " IN (" + s.getBindVar() + ")")
 	s.fieldValues = append(s.fieldValues, buildOption.fieldValue)
+}
+
+func (s *sqlBuilder) buildQueryUpdate(buildOption BuildQueryOption) {
+	if buildOption.fieldValue == nil && !buildOption.isSQLNull {
+		return
+	}
+
+	separator := operator.Ternary(strings.TrimSpace(s.rawUpdate.String()) == "SET", "", ",")
+	if !buildOption.isMany {
+		if buildOption.isSQLNull {
+			s.rawUpdate.WriteString(separator + " " + buildOption.dbTagValue + "=NULL")
+			return
+		}
+
+		s.rawUpdate.WriteString(separator + " " + buildOption.dbTagValue + "=" + s.getBindVar())
+		s.updateValues = append(s.updateValues, buildOption.fieldValue)
+	}
 }
 
 func (s *sqlBuilder) getBindVar() string {
