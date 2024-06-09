@@ -13,7 +13,7 @@ import (
 /*
 Determine specific action for each element in param
 */
-func (s *sqlBuilder) processParam(param reflect.Value, paramTagValue string, dbTagValue string) {
+func (s *sqlBuilder) processParam(param reflect.Value, paramTagValue string, dbTagValue string, isUpdate bool) {
 	switch {
 
 	case param.Kind() == reflect.Pointer || param.Kind() == reflect.Interface:
@@ -21,7 +21,7 @@ func (s *sqlBuilder) processParam(param reflect.Value, paramTagValue string, dbT
 			return
 		}
 
-		s.processParam(param.Elem(), "", "")
+		s.processParam(param.Elem(), "", "", isUpdate)
 
 	case param.Kind() == reflect.Struct && !isNullType(param) && !isTimeType(param):
 		for i := 0; i < param.NumField(); i++ {
@@ -33,17 +33,17 @@ func (s *sqlBuilder) processParam(param reflect.Value, paramTagValue string, dbT
 					continue
 				}
 
-				s.processParam(param.Field(i), paramTagValue, dbTagValue)
+				s.processParam(param.Field(i), paramTagValue, dbTagValue, isUpdate)
 			}
 		}
 
 	default:
-		s.processElem(param, paramTagValue, dbTagValue)
+		s.processElem(param, paramTagValue, dbTagValue, isUpdate)
 	}
 }
 
 // collect element build option and build the query
-func (s *sqlBuilder) processElem(element reflect.Value, paramTagValue string, dbTagValue string) {
+func (s *sqlBuilder) processElem(element reflect.Value, paramTagValue string, dbTagValue string, isUpdate bool) {
 	buildOption := BuildQueryOption{
 		paramTagValue: paramTagValue,
 		dbTagValue:    dbTagValue,
@@ -58,6 +58,11 @@ func (s *sqlBuilder) processElem(element reflect.Value, paramTagValue string, db
 	}
 
 	buildOption = s.setBuildOption(element, buildOption)
+
+	if isUpdate {
+		s.buildQueryUpdate(buildOption)
+		return
+	}
 
 	s.buildQuery(buildOption)
 }
