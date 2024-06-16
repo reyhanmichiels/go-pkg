@@ -20,6 +20,7 @@ var (
 	now              = time.Now
 	CustomLevelNames = map[slog.Leveler]string{
 		LevelPanic: "PANIC",
+		LevelFatal: "FATAL",
 	}
 )
 
@@ -28,9 +29,11 @@ const (
 	levelInfo  = "info"
 	levelWarn  = "warn"
 	levelError = "error"
+	levelFatal = "fatal"
 	levelPanic = "panic"
 
 	// customize slog level
+	LevelFatal = slog.Level(10)
 	LevelPanic = slog.Level(12)
 )
 
@@ -39,6 +42,7 @@ type Interface interface {
 	Debug(ctx context.Context, obj any)
 	Warn(ctx context.Context, obj any)
 	Error(ctx context.Context, obj any)
+	Fatal(ctx context.Context, obj any)
 	Panic(obj any)
 }
 
@@ -107,6 +111,17 @@ func (l *logger) Error(ctx context.Context, obj any) {
 	)
 }
 
+func (l *logger) Fatal(ctx context.Context, obj any) {
+	l.log.LogAttrs(
+		ctx,
+		LevelFatal,
+		l.getCaller(obj),
+		l.getFieldsFromContext(ctx)...,
+	)
+
+	os.Exit(1)
+}
+
 func (l *logger) Panic(obj any) {
 	l.log.LogAttrs(
 		context.Background(),
@@ -130,7 +145,8 @@ func parsingLogLevel(text string) (slog.Level, error) {
 		return slog.LevelWarn, nil
 	case levelPanic:
 		return LevelPanic, nil
-
+	case levelFatal:
+		return LevelFatal, nil
 	}
 
 	return slog.Level(-1), fmt.Errorf("invalid log level %s", text)
