@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/reyhanmichiels/go-pkg/errors"
 	"github.com/reyhanmichiels/go-pkg/log"
 )
 
@@ -47,7 +48,7 @@ func (x *commandTx) Commit() error {
 // Rollback needs to be called with defer right after calling BeginTx.
 // Read here: https://go.dev/doc/database/execute-transactions.
 func (x *commandTx) Rollback() {
-	if err := x.tx.Rollback(); err != nil && err != sql.ErrTxDone {
+	if err := x.tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
 		x.log.Error(x.ctx, err)
 	}
 }
