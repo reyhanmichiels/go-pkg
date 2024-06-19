@@ -63,6 +63,18 @@ func (mr *MockInterfaceMockRecorder) Error(ctx, obj any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Error", reflect.TypeOf((*MockInterface)(nil).Error), ctx, obj)
 }
 
+// Fatal mocks base method.
+func (m *MockInterface) Fatal(ctx context.Context, obj any) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Fatal", ctx, obj)
+}
+
+// Fatal indicates an expected call of Fatal.
+func (mr *MockInterfaceMockRecorder) Fatal(ctx, obj any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fatal", reflect.TypeOf((*MockInterface)(nil).Fatal), ctx, obj)
+}
+
 // Info mocks base method.
 func (m *MockInterface) Info(ctx context.Context, obj any) {
 	m.ctrl.T.Helper()
