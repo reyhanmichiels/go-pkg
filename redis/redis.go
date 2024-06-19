@@ -75,7 +75,7 @@ func (c *cache) connect(ctx context.Context) {
 
 	if c.conf.TLS.Enabled {
 		redisOpts.TLSConfig = &tls.Config{
-			InsecureSkipVerify: c.conf.TLS.InsecureSkipVerify, // #nosec G402
+			InsecureSkipVerify: c.conf.TLS.InsecureSkipVerify, // nolint:all
 		}
 	}
 
