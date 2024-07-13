@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/reyhanmichiels/go-pkg/codes"
+	"github.com/reyhanmichiels/go-pkg/language"
 )
 
 type contextKey string
@@ -31,6 +32,20 @@ const (
 	authToken        contextKey = "AuthToken"
 	serviceName      contextKey = "ServiceName"
 )
+
+func SetAcceptLanguage(ctx context.Context, lang string) context.Context {
+	return context.WithValue(ctx, acceptLanguage, lang)
+}
+
+func GetAcceptLanguage(ctx context.Context) string {
+	lang, ok := ctx.Value(acceptLanguage).(string)
+	if !ok {
+		// return english as the default language
+		return language.English
+	}
+
+	return lang
+}
 
 func SetRequestId(ctx context.Context, rid string) context.Context {
 	return context.WithValue(ctx, requestId, rid)
