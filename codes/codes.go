@@ -44,6 +44,11 @@ const (
 	CodeUnmarshal
 )
 
+// translator errors
+const (
+	CodeTranslatorError = Code(iota + 500)
+)
+
 var ErrorMessage = AppMessage{
 	CodeInvalidValue:            ErrMsgBadRequest,
 	CodeContextDeadlineExceeded: ErrMsgContextTimeout,
@@ -59,6 +64,9 @@ var ErrorMessage = AppMessage{
 	CodeTooManyRequest:          ErrMsgTooManyRequest,
 	CodeMarshal:                 ErrMsgBadRequest,
 	CodeUnmarshal:               ErrMsgBadRequest,
+
+	// Code Translator
+	CodeTranslatorError: ErrMsgTranslatorlib,
 }
 
 var SuccessMessage = AppMessage{

@@ -96,6 +96,13 @@ var (
 		BodyEN:     "Service is unavailable. Please contact the administrator.",
 		BodyID:     "Layanan sedang tidak tersedia. Mohon hubungi administrator.",
 	}
+
+	// Translator Error
+	ErrMsgTranslatorlib = Message{
+		StatusCode: http.StatusInternalServerError,
+		TitleEN:    "Translator error",
+		TitleID:    "Translator mengalami kegagalan",
+	}
 )
 
 // HTTP Success message
