@@ -43,7 +43,12 @@ func Init(conf Config, log log.Interface) Interface {
 	if err != nil {
 		log.Fatal(context.Background(), err)
 	}
-	t.Import(ut.FormatJSON, fmt.Sprintf("%s/%s", pwd, conf.TranslationDir))
+
+	err = t.Import(ut.FormatJSON, fmt.Sprintf("%s/%s", pwd, conf.TranslationDir))
+	if err != nil {
+		log.Fatal(context.Background(), err)
+	}
+
 	if err := t.VerifyTranslations(); err != nil {
 		log.Fatal(context.Background(), err)
 	}
