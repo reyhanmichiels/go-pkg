@@ -54,6 +54,16 @@ type logger struct {
 	log *slog.Logger
 }
 
+func DefaultLogger() Interface {
+	return &logger{
+		log: slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			Level:       slog.LevelDebug,
+			AddSource:   true,
+			ReplaceAttr: getCustomLevelName,
+		})),
+	}
+}
+
 func Init(cfg Config) Interface {
 	var slogLogger *slog.Logger
 
