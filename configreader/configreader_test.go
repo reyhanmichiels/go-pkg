@@ -2,21 +2,24 @@ package configreader
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_configreader_ReadConfig(t *testing.T) {
 	type MockConfig struct {
-		ValueString string
-		ValueInt    int
-		ValueBool   bool
+		ValueString       string
+		ValueInt          int
+		ValueBool         bool
+		ValueTimeDuration time.Duration
 	}
 
 	mockRes := MockConfig{
-		ValueString: "string",
-		ValueInt:    1,
-		ValueBool:   true,
+		ValueString:       "string",
+		ValueInt:          1,
+		ValueBool:         true,
+		ValueTimeDuration: time.Second * 60,
 	}
 
 	tests := []struct {
