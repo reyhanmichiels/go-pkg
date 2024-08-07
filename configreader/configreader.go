@@ -43,7 +43,8 @@ func Init(option Options) Interface {
 
 func (c *configBuilder) ReadConfig(cfg interface{}) {
 	decoderConfig := &mapstructure.DecoderConfig{
-		Result: cfg,
+		Result:           cfg,
+		WeaklyTypedInput: true,
 		DecodeHook: mapstructure.ComposeDecodeHookFunc(
 			mapstructure.StringToSliceHookFunc(","),
 			mapstructure.StringToTimeDurationHookFunc(),
