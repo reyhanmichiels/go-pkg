@@ -49,6 +49,16 @@ const (
 	CodeTranslatorError = Code(iota + 500)
 )
 
+// auth error
+const (
+	CodeAuth = Code(iota + 1700)
+	CodeAuthRefreshTokenExpired
+	CodeAuthAccessTokenExpired
+	CodeAuthFailure
+	CodeAuthInvalidToken
+	CodeAuthRevokeRefreshTokenFailed
+)
+
 var ErrorMessage = AppMessage{
 	CodeInvalidValue:            ErrMsgBadRequest,
 	CodeContextDeadlineExceeded: ErrMsgContextTimeout,
@@ -67,6 +77,15 @@ var ErrorMessage = AppMessage{
 
 	// Code Translator
 	CodeTranslatorError: ErrMsgTranslatorlib,
+
+	// Code Auth
+	CodeAuth:                         ErrMsgUnauthorized,
+	CodeAuthRefreshTokenExpired:      ErrMsgRefreshTokenExpired,
+	CodeAuthAccessTokenExpired:       ErrMsgAccessTokenExpired,
+	CodeAuthFailure:                  ErrMsgUnauthorized,
+	CodeAuthInvalidToken:             ErrMsgInvalidToken,
+	CodeForbidden:                    ErrMsgForbidden,
+	CodeAuthRevokeRefreshTokenFailed: ErrMsgRevokeRefreshTokenFailed,
 }
 
 var SuccessMessage = AppMessage{

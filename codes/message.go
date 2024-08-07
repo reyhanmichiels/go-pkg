@@ -103,6 +103,29 @@ var (
 		TitleEN:    "Translator error",
 		TitleID:    "Translator mengalami kegagalan",
 	}
+
+	// Auth Error
+	ErrMsgRefreshTokenExpired = Message{
+		StatusCode: http.StatusUnauthorized,
+		TitleEN:    language.HTTPStatusText(language.English, http.StatusUnauthorized),
+		TitleID:    language.HTTPStatusText(language.Indonesian, http.StatusUnauthorized),
+		BodyEN:     "Session refresh token has expired. Please renew your session by reloading.",
+		BodyID:     "Token pembaruan sudah tidak berlaku. Mohon perbarui sesi dengan memuat ulang laman.",
+	}
+	ErrMsgAccessTokenExpired = Message{
+		StatusCode: http.StatusUnauthorized,
+		TitleEN:    language.HTTPStatusText(language.English, http.StatusUnauthorized),
+		TitleID:    language.HTTPStatusText(language.Indonesian, http.StatusUnauthorized),
+		BodyEN:     "Session access token has expired. Please renew your session by reloading.",
+		BodyID:     "Token akses sudah tidak berlaku. Mohon perbarui sesi dengan memuat ulang laman.",
+	}
+	ErrMsgRevokeRefreshTokenFailed = Message{
+		StatusCode: http.StatusInternalServerError,
+		TitleEN:    language.HTTPStatusText(language.English, http.StatusInternalServerError),
+		TitleID:    language.HTTPStatusText(language.Indonesian, http.StatusInternalServerError),
+		BodyEN:     "Failed revoking refresh token.",
+		BodyID:     "Gagal mencabut refresh token.",
+	}
 )
 
 // HTTP Success message
