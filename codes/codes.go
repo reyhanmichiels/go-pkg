@@ -84,7 +84,6 @@ var ErrorMessage = AppMessage{
 	CodeAuthAccessTokenExpired:       ErrMsgAccessTokenExpired,
 	CodeAuthFailure:                  ErrMsgUnauthorized,
 	CodeAuthInvalidToken:             ErrMsgInvalidToken,
-	CodeForbidden:                    ErrMsgForbidden,
 	CodeAuthRevokeRefreshTokenFailed: ErrMsgRevokeRefreshTokenFailed,
 }
 

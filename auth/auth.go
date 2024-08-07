@@ -30,7 +30,7 @@ type Interface interface {
 	ValidateAccessToken(token string) (int64, error)
 	ValidateRefreshToken(token string) (int64, error)
 	SetUserAuthInfo(ctx context.Context, user User) context.Context
-	GetUserAuthInfo(ctx context.Context, user User) (User, error)
+	GetUserAuthInfo(ctx context.Context) (User, error)
 }
 
 type auth struct {
@@ -133,7 +133,7 @@ func (a *auth) SetUserAuthInfo(ctx context.Context, user User) context.Context {
 	return context.WithValue(ctx, userAuthInfo, user)
 }
 
-func (a *auth) GetUserAuthInfo(ctx context.Context, user User) (User, error) {
+func (a *auth) GetUserAuthInfo(ctx context.Context) (User, error) {
 	user, ok := ctx.Value(userAuthInfo).(User)
 	if !ok {
 		return user, errors.NewWithCode(codes.CodeAuthFailure, "failed getting user auth info")
