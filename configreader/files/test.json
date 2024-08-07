@@ -1,5 +1,6 @@
 {
     "ValueString": "string",
     "ValueInt": 1,
-    "ValueBool": "true"
+    "ValueBool": "true",
+    "ValueTimeDuration": "60s"
 }
