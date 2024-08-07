@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/reyhanmichiels/go-pkg/codes"
+	"github.com/reyhanmichiels/go-pkg/header"
 	"github.com/reyhanmichiels/go-pkg/language"
 )
 
@@ -45,6 +46,20 @@ func GetAcceptLanguage(ctx context.Context) string {
 	}
 
 	return lang
+}
+
+func SetCacheControl(ctx context.Context, cache string) context.Context {
+	return context.WithValue(ctx, cacheControl, cache)
+}
+
+func GetCacheControl(ctx context.Context) bool {
+	c, ok := ctx.Value(cacheControl).(string)
+	if !ok || c != header.CacheControlNoCache {
+		// return false as the default vale
+		return false
+	} else {
+		return true
+	}
 }
 
 func SetRequestId(ctx context.Context, rid string) context.Context {
