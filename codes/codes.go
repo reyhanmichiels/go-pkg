@@ -51,12 +51,18 @@ const (
 
 // auth error
 const (
-	CodeAuth = Code(iota + 1700)
+	CodeAuth = Code(iota + 1000)
 	CodeAuthRefreshTokenExpired
 	CodeAuthAccessTokenExpired
 	CodeAuthFailure
 	CodeAuthInvalidToken
 	CodeAuthRevokeRefreshTokenFailed
+)
+
+// json parser error
+const (
+	CodeJSONMarshalError = Code(iota + 1100)
+	CodeJSONUnmarshalError
 )
 
 var ErrorMessage = AppMessage{
@@ -85,6 +91,10 @@ var ErrorMessage = AppMessage{
 	CodeAuthFailure:                  ErrMsgUnauthorized,
 	CodeAuthInvalidToken:             ErrMsgInvalidToken,
 	CodeAuthRevokeRefreshTokenFailed: ErrMsgRevokeRefreshTokenFailed,
+
+	// Code JSON Parser
+	CodeJSONMarshalError:   ErrMsgBadRequest,
+	CodeJSONUnmarshalError: ErrMsgBadRequest,
 }
 
 var SuccessMessage = AppMessage{
