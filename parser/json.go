@@ -5,7 +5,6 @@ import (
 	"github.com/reyhanmichiels/go-pkg/codes"
 	"github.com/reyhanmichiels/go-pkg/errors"
 	"github.com/reyhanmichiels/go-pkg/log"
-	"github.com/xeipuuv/gojsonschema"
 )
 
 type jsonConfig string
@@ -41,7 +40,6 @@ type JSONInterface interface {
 
 type jsonParser struct {
 	API    jsoniter.API
-	schema map[string]*gojsonschema.Schema
 	logger log.Interface
 }
 
