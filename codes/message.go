@@ -126,6 +126,15 @@ var (
 		BodyEN:     "Failed revoking refresh token.",
 		BodyID:     "Gagal mencabut refresh token.",
 	}
+
+	// Lock Error
+	ErrMsgLockExist = Message{
+		StatusCode: http.StatusTooManyRequests,
+		TitleEN:    "Please wait for a while before requesting a new password",
+		TitleID:    "Mohon tunggu sejenak sebelum meminta password baru",
+		BodyEN:     "",
+		BodyID:     "",
+	}
 )
 
 // HTTP Success message
