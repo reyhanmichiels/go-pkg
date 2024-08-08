@@ -65,6 +65,46 @@ const (
 	CodeJSONUnmarshalError
 )
 
+// SQL error
+const (
+	CodeSQL = Code(iota + 1200)
+	CodeSQLInit
+	CodeSQLBuilder
+	CodeSQLTxBegin
+	CodeSQLTxCommit
+	CodeSQLTxRollback
+	CodeSQLTxExec
+	CodeSQLPrepareStmt
+	CodeSQLRead
+	CodeSQLRowScan
+	CodeSQLRecordDoesNotExist
+	CodeSQLUniqueConstraint
+	CodeSQLConflict
+	CodeSQLNoRowsAffected
+)
+
+// Cache Error
+const (
+	CodeRedisGet = Code(iota + 3900)
+	CodeRedisSetEx
+	CodeFailedLock
+	CodeFailedReleaseLock
+	CodeLockExist
+	CodeCacheMarshal
+	CodeCacheUnmarshal
+	CodeCacheGetSimpleKey
+	CodeCacheSetSimpleKey
+	CodeCacheDeleteSimpleKey
+	CodeCacheGetHashKey
+	CodeCacheSetHashKey
+	CodeCacheDeleteHashKey
+	CodeCacheSetExpiration
+	CodeCacheDecode
+	CodeCacheLockNotAcquired
+	CodeCacheInvalidCastType
+	CodeCacheNotFound
+)
+
 var ErrorMessage = AppMessage{
 	CodeInvalidValue:            ErrMsgBadRequest,
 	CodeContextDeadlineExceeded: ErrMsgContextTimeout,
@@ -95,6 +135,42 @@ var ErrorMessage = AppMessage{
 	// Code JSON Parser
 	CodeJSONMarshalError:   ErrMsgBadRequest,
 	CodeJSONUnmarshalError: ErrMsgBadRequest,
+
+	// Code SQL
+	CodeSQL:                   ErrMsgInternalServerError,
+	CodeSQLInit:               ErrMsgInternalServerError,
+	CodeSQLBuilder:            ErrMsgInternalServerError,
+	CodeSQLTxBegin:            ErrMsgInternalServerError,
+	CodeSQLTxCommit:           ErrMsgInternalServerError,
+	CodeSQLTxRollback:         ErrMsgInternalServerError,
+	CodeSQLTxExec:             ErrMsgInternalServerError,
+	CodeSQLPrepareStmt:        ErrMsgInternalServerError,
+	CodeSQLRead:               ErrMsgInternalServerError,
+	CodeSQLRowScan:            ErrMsgInternalServerError,
+	CodeSQLRecordDoesNotExist: ErrMsgNotFound,
+	CodeSQLUniqueConstraint:   ErrMsgConflict,
+	CodeSQLConflict:           ErrMsgConflict,
+	CodeSQLNoRowsAffected:     ErrMsgInternalServerError,
+
+	// Code Cache Error
+	CodeLockExist:            ErrMsgLockExist,
+	CodeRedisGet:             ErrMsgInternalServerError,
+	CodeRedisSetEx:           ErrMsgInternalServerError,
+	CodeFailedLock:           ErrMsgInternalServerError,
+	CodeFailedReleaseLock:    ErrMsgInternalServerError,
+	CodeCacheMarshal:         ErrMsgInternalServerError,
+	CodeCacheUnmarshal:       ErrMsgInternalServerError,
+	CodeCacheGetSimpleKey:    ErrMsgInternalServerError,
+	CodeCacheSetSimpleKey:    ErrMsgInternalServerError,
+	CodeCacheDeleteSimpleKey: ErrMsgInternalServerError,
+	CodeCacheGetHashKey:      ErrMsgInternalServerError,
+	CodeCacheSetHashKey:      ErrMsgInternalServerError,
+	CodeCacheDeleteHashKey:   ErrMsgInternalServerError,
+	CodeCacheSetExpiration:   ErrMsgInternalServerError,
+	CodeCacheDecode:          ErrMsgInternalServerError,
+	CodeCacheLockNotAcquired: ErrMsgInternalServerError,
+	CodeCacheInvalidCastType: ErrMsgInternalServerError,
+	CodeCacheNotFound:        ErrMsgInternalServerError,
 }
 
 var SuccessMessage = AppMessage{
