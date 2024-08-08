@@ -12,6 +12,8 @@ import (
 	"github.com/reyhanmichiels/go-pkg/log"
 )
 
+var ErrNotFound = sql.ErrNoRows
+
 const (
 	failedConnectDBMessage = "[FATAL] cannot connect to db %s leader: %s on port %d, with error: %s"
 )
