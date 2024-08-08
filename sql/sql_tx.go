@@ -16,6 +16,7 @@ type CommandTx interface {
 
 	QueryRow(name string, query string, args ...interface{}) (*sqlx.Row, error)
 	Query(name string, query string, args ...interface{}) (*sqlx.Rows, error)
+	Get(name string, query string, dest interface{}, args ...interface{}) error
 
 	NamedExec(name string, query string, args interface{}) (sql.Result, error)
 	Exec(name string, query string, args ...interface{}) (sql.Result, error)
@@ -80,4 +81,11 @@ func (x *commandTx) Exec(name string, query string, args ...interface{}) (sql.Re
 		x.log.Info(x.ctx, fmt.Sprintf(queryLogMessage, name, replaceBindVarsWithArgs(query, args...)))
 	}
 	return x.tx.ExecContext(x.ctx, query, args...)
+}
+
+func (x *commandTx) Get(name string, query string, dest interface{}, args ...interface{}) error {
+	if x.logQuery {
+		x.log.Info(x.ctx, fmt.Sprintf(queryLogMessage, name, replaceBindVarsWithArgs(query, args...)))
+	}
+	return x.tx.GetContext(x.ctx, dest, query, args...)
 }

@@ -17,6 +17,7 @@ type Command interface {
 
 	QueryRow(ctx context.Context, name string, query string, args ...interface{}) (*sqlx.Row, error)
 	Query(ctx context.Context, name string, query string, args ...interface{}) (*sqlx.Rows, error)
+	Get(ctx context.Context, name string, query string, dest interface{}, args ...interface{}) error
 
 	NamedExec(ctx context.Context, name string, query string, args interface{}) (sql.Result, error)
 	Exec(ctx context.Context, name string, query string, args ...interface{}) (sql.Result, error)
@@ -111,4 +112,11 @@ func (c *command) ExecuteInTransaction(ctx context.Context, name string, opt TxO
 	}
 
 	return nil
+}
+
+func (c *command) Get(ctx context.Context, name string, query string, dest interface{}, args ...interface{}) error {
+	if c.logQuery {
+		c.log.Info(ctx, fmt.Sprintf(queryLogMessage, name, replaceBindVarsWithArgs(query, args...)))
+	}
+	return c.db.GetContext(ctx, dest, query, args...)
 }
