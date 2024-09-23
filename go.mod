@@ -1,6 +1,6 @@
 module github.com/reyhanmichiels/go-pkg
 
-go 1.22.2
+go 1.22.1
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect

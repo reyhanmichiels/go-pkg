@@ -28,7 +28,7 @@ type Interface interface {
 	CreateAccessToken(userID int64) (string, error)
 	CreateRefreshToken(userID int64) (string, error)
 	ValidateAccessToken(token string) (int64, error)
-	ValidateRefreshToken(token string) (int64, error)
+	ValidateRefreshToken(token string) error
 	SetUserAuthInfo(ctx context.Context, user User) context.Context
 	GetUserAuthInfo(ctx context.Context) (User, error)
 }
@@ -69,15 +69,17 @@ func (a *auth) CreateAccessToken(userID int64) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
 
 	signedToken, err := token.SignedString(a.signingKey)
+	if err != nil {
+		return signedToken, errors.NewWithCode(codes.CodeInternalServerError, err.Error())
+	}
 
-	return signedToken, err
+	return signedToken, nil
 }
 
 func (a *auth) CreateRefreshToken(userID int64) (string, error) {
-	expireTime := time.Now().Add(a.cfg.AccessTokenExpireTime)
+	expireTime := time.Now().Add(a.cfg.RefreshTokenExpireTime)
 
 	claim := &Claim{
-		UserID:    userID,
 		TokenType: a.cfg.RefreshTokenType,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expireTime),
@@ -87,8 +89,11 @@ func (a *auth) CreateRefreshToken(userID int64) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
 
 	signedToken, err := token.SignedString(a.signingKey)
+	if err != nil {
+		return signedToken, errors.NewWithCode(codes.CodeInternalServerError, err.Error())
+	}
 
-	return signedToken, err
+	return signedToken, nil
 }
 
 func (a *auth) ValidateAccessToken(token string) (int64, error) {
@@ -110,23 +115,23 @@ func (a *auth) ValidateAccessToken(token string) (int64, error) {
 	return claim.UserID, nil
 }
 
-func (a *auth) ValidateRefreshToken(token string) (int64, error) {
+func (a *auth) ValidateRefreshToken(token string) error {
 	claim := Claim{}
 
 	_, err := jwt.ParseWithClaims(token, &claim, func(token *jwt.Token) (interface{}, error) {
 		return a.signingKey, nil
 	})
 	if err != nil && !errors.Is(err, jwt.ErrTokenExpired) {
-		return 0, errors.NewWithCode(codes.CodeAuthInvalidToken, err.Error())
+		return errors.NewWithCode(codes.CodeAuthInvalidToken, err.Error())
 	} else if err != nil && errors.Is(err, jwt.ErrTokenExpired) {
-		return 0, errors.NewWithCode(codes.CodeAuthAccessTokenExpired, err.Error())
+		return errors.NewWithCode(codes.CodeAuthAccessTokenExpired, err.Error())
 	}
 
 	if claim.TokenType != a.cfg.RefreshTokenType {
-		return 0, errors.NewWithCode(codes.CodeAuthInvalidToken, "invalid token")
+		return errors.NewWithCode(codes.CodeAuthInvalidToken, "invalid token")
 	}
 
-	return claim.UserID, nil
+	return nil
 }
 
 func (a *auth) SetUserAuthInfo(ctx context.Context, user User) context.Context {
