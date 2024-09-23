@@ -112,10 +112,6 @@ func (s *sqlDB) initDB() {
 }
 
 func (s *sqlDB) connect(isLeader bool) *sqlx.DB {
-	if s.cfg.Driver != "mysql" {
-		s.log.Fatal(context.Background(), fmt.Sprintf("driver %s is not supported", s.cfg.Driver))
-	}
-
 	conf := s.cfg.Leader
 	if !isLeader {
 		conf = s.cfg.Follower

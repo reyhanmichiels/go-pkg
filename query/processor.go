@@ -54,7 +54,19 @@ func (s *sqlBuilder) processElem(element reflect.Value, paramTagValue string, db
 	}
 
 	if element.Kind() == reflect.Slice {
-		buildOption.isMany = true
+		if !element.IsNil() && element.Len() > 0 {
+			buildOption.isMany = true
+		}
+	}
+
+	if isPage(paramTagValue) {
+		s.pageValue = validatePage(element.Int())
+		return
+	}
+
+	if isLimit(paramTagValue) {
+		s.limitValue = validateLimit(element.Int())
+		return
 	}
 
 	buildOption = s.setBuildOption(element, buildOption)
@@ -233,8 +245,15 @@ func (s *sqlBuilder) setBuildOption(element reflect.Value, buildOption BuildQuer
 			buildOption.fieldValue = temp
 		}
 	default:
-		if !element.IsZero() {
-			buildOption.fieldValue = element.Interface()
+		switch {
+		case element.Kind() == reflect.Slice:
+			if !element.IsNil() && element.Len() > 0 {
+				buildOption.fieldValue = element.Interface()
+			}
+		default:
+			if !element.IsZero() {
+				buildOption.fieldValue = element.Interface()
+			}
 		}
 	}
 	return buildOption

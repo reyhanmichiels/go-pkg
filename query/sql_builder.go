@@ -170,16 +170,6 @@ func (s *sqlBuilder) buildQuery(buildOption BuildQueryOption) {
 		return
 	}
 
-	if isPage(buildOption.paramTagValue) {
-		s.pageValue = validatePage(buildOption.fieldValue.(int64))
-		return
-	}
-
-	if isLimit(buildOption.paramTagValue) {
-		s.limitValue = validateLimit(buildOption.fieldValue.(int64))
-		return
-	}
-
 	// write logical operator first
 	if strings.Contains(buildOption.paramTagValue, "__opt") {
 		s.rawQuery.WriteString(" OR")
