@@ -18,10 +18,20 @@ const (
 	failedConnectDBMessage = "[FATAL] cannot connect to db %s leader: %s on port %d, with error: %s"
 )
 
+type txKey struct{} // txKey is a context key for the transaction.
+
 type Interface interface {
 	Leader() Command
 	Follower() Command
 	Stop()
+
+	QueryRow(ctx context.Context, name string, query string, args ...interface{}) (*sqlx.Row, error)
+	Query(ctx context.Context, name string, query string, args ...interface{}) (*sqlx.Rows, error)
+	Get(ctx context.Context, name string, query string, dest interface{}, args ...interface{}) error
+
+	NamedExec(ctx context.Context, name string, query string, args interface{}) (sql.Result, error)
+	Exec(ctx context.Context, name string, query string, args ...interface{}) (sql.Result, error)
+	Transaction(ctx context.Context, name string, txOpts TxOptions, f func(context.Context) error) error
 }
 
 type sqlDB struct {
@@ -92,6 +102,55 @@ func (s *sqlDB) Stop() {
 			}
 		}
 	})
+}
+
+func (s *sqlDB) QueryRow(ctx context.Context, name string, query string, args ...interface{}) (*sqlx.Row, error) {
+	return s.follower.QueryRow(ctx, name, query, args...)
+}
+
+func (s *sqlDB) Query(ctx context.Context, name string, query string, args ...interface{}) (*sqlx.Rows, error) {
+	return s.follower.Query(ctx, name, query, args...)
+}
+
+func (s *sqlDB) Get(ctx context.Context, name string, query string, dest interface{}, args ...interface{}) error {
+	return s.follower.Get(ctx, name, query, dest, args...)
+}
+
+func (s *sqlDB) NamedExec(ctx context.Context, name string, query string, args interface{}) (sql.Result, error) {
+	if tx, ok := s.getTx(ctx); ok {
+		return tx.NamedExec(name, query, args)
+	}
+	return s.leader.NamedExec(ctx, name, query, args)
+}
+
+func (s *sqlDB) Exec(ctx context.Context, name string, query string, args ...interface{}) (sql.Result, error) {
+	if tx, ok := s.getTx(ctx); ok {
+		return tx.Exec(name, query, args...)
+	}
+	return s.leader.Exec(ctx, name, query, args...)
+}
+
+// Transaction executes a transaction. If the given function returns an error, the transaction
+// is rolled back. Otherwise, it is automatically committed before `Transaction()` returns.
+func (s *sqlDB) Transaction(ctx context.Context, name string, txOpts TxOptions, f func(context.Context) error) error {
+	tx, err := s.leader.BeginTx(ctx, name, txOpts)
+	if err != nil {
+		return err
+	}
+	c := context.WithValue(ctx, txKey{}, tx)
+	err = f(c)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// getTx retrieves the transaction from the context.
+func (s *sqlDB) getTx(ctx context.Context) (CommandTx, bool) {
+	tx, ok := ctx.Value(txKey{}).(CommandTx)
+	return tx, ok
 }
 
 func (s *sqlDB) initDB() {
