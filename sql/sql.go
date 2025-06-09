@@ -9,6 +9,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"github.com/reyhanmichiels/go-pkg/log"
 )
 
@@ -24,6 +25,8 @@ type Interface interface {
 	Leader() Command
 	Follower() Command
 	Stop()
+
+	Rebind(query string) string
 
 	QueryRow(ctx context.Context, name string, query string, args ...interface{}) (*sqlx.Row, error)
 	Query(ctx context.Context, name string, query string, args ...interface{}) (*sqlx.Rows, error)
@@ -104,6 +107,10 @@ func (s *sqlDB) Stop() {
 	})
 }
 
+func (s *sqlDB) Rebind(query string) string {
+	return s.leader.Rebind(query)
+}
+
 func (s *sqlDB) QueryRow(ctx context.Context, name string, query string, args ...interface{}) (*sqlx.Row, error) {
 	return s.follower.QueryRow(ctx, name, query, args...)
 }
@@ -180,11 +187,10 @@ func (s *sqlDB) connect(isLeader bool) *sqlx.DB {
 		return sqlx.NewDb(s.cfg.Leader.MockDB, s.cfg.Driver)
 	}
 
-	ssl := `false`
-	if conf.SSL {
-		ssl = `true`
+	uri, err := s.getURI(conf)
+	if err != nil {
+		s.log.Fatal(context.Background(), fmt.Sprintf("[FATAL] cannot get URI for db %s leader: %s on port %d, with error: %s", conf.DB, conf.Host, conf.Port, err))
 	}
-	uri := fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?tls=%s&parseTime=true", conf.User, conf.Password, conf.Host, conf.Port, conf.DB, ssl)
 
 	sqlxDB, err := sqlx.Open(s.cfg.Driver, uri)
 	if err != nil {
@@ -201,6 +207,28 @@ func (s *sqlDB) connect(isLeader bool) *sqlx.DB {
 	sqlxDB.SetConnMaxLifetime(conf.Options.MaxLifeTime)
 
 	return sqlxDB
+}
+
+func (s *sqlDB) getURI(conf ConnConfig) (string, error) {
+	switch s.cfg.Driver {
+	case "postgres":
+		ssl := `disable`
+		if conf.SSL {
+			ssl = `require`
+		}
+		if conf.Schema == "" {
+			conf.Schema = "public"
+		}
+		return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s search_path=%s sslmode=%s", conf.Host, conf.Port, conf.User, conf.Password, conf.DB, conf.Schema, ssl), nil
+	case "mysql":
+		ssl := `false`
+		if conf.SSL {
+			ssl = `true`
+		}
+		return fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?tls=%s&parseTime=true", conf.User, conf.Password, conf.Host, conf.Port, conf.DB, ssl), nil
+	default:
+		return "", fmt.Errorf(`DB Driver [%s] is not supported`, s.cfg.Driver)
+	}
 }
 
 func (s *sqlDB) isFollowerEnabled() bool {

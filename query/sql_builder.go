@@ -10,6 +10,7 @@ import (
 	"github.com/reyhanmichiels/go-pkg/codes"
 	"github.com/reyhanmichiels/go-pkg/errors"
 	"github.com/reyhanmichiels/go-pkg/operator"
+	"github.com/reyhanmichiels/go-pkg/sql"
 )
 
 type Option struct {
@@ -28,6 +29,7 @@ type BuildQueryOption struct {
 }
 
 type sqlBuilder struct {
+	db            sql.Interface
 	dbTag         string
 	paramTag      string
 	rawQuery      *bytes.Buffer
@@ -43,8 +45,9 @@ type sqlBuilder struct {
 	option        *Option
 }
 
-func NewSQLQueryBuilder(paramTag, dbTag string, option *Option) *sqlBuilder {
+func NewSQLQueryBuilder(db sql.Interface, paramTag, dbTag string, option *Option) *sqlBuilder {
 	qb := sqlBuilder{
+		db:            db,
 		rawQuery:      bytes.NewBufferString(" WHERE 1=1"),
 		rawUpdate:     bytes.NewBufferString(" SET"),
 		dbTag:         dbTag,
@@ -97,13 +100,13 @@ func (s *sqlBuilder) Build(param interface{}) (string, []interface{}, string, []
 	if err != nil {
 		return "", nil, "", nil, err
 	}
-	newQuery = sqlx.Rebind(sqlx.QUESTION, newQuery)
+	newQuery = s.db.Rebind(newQuery)
 
 	newCountQuery, newCountArgs, err = sqlx.In(string(countQuery)+";", s.fieldValues...)
 	if err != nil {
 		return "", nil, "", nil, err
 	}
-	newCountQuery = sqlx.Rebind(sqlx.QUESTION, newCountQuery)
+	newCountQuery = s.db.Rebind(newCountQuery)
 
 	s.restoreStruct()
 
@@ -145,7 +148,7 @@ func (s *sqlBuilder) BuildUpdate(updateParam interface{}, queryParam interface{}
 	if err != nil {
 		return "", nil, err
 	}
-	newQueryParam = sqlx.Rebind(sqlx.QUESTION, newQueryParam)
+	newQueryParam = s.db.Rebind(newQueryParam)
 
 	if strings.TrimSpace(newQueryParam) == "WHERE 1=1;" || strings.TrimSpace(s.rawUpdate.String()) == "SET" {
 		return "", nil, errors.NewWithCode(codes.CodeInvalidValue, "generated query or update clause cannot be empty")
