@@ -15,6 +15,8 @@ type Command interface {
 	Close() error
 	Ping(ctx context.Context) error
 
+	Rebind(query string) string
+
 	QueryRow(ctx context.Context, name string, query string, args ...interface{}) (*sqlx.Row, error)
 	Query(ctx context.Context, name string, query string, args ...interface{}) (*sqlx.Rows, error)
 	Get(ctx context.Context, name string, query string, dest interface{}, args ...interface{}) error
@@ -48,6 +50,10 @@ func initCommand(db *sqlx.DB, log log.Interface, logQuery bool) Command {
 
 func (c *command) Close() error {
 	return c.db.Close()
+}
+
+func (c *command) Rebind(query string) string {
+	return c.db.Rebind(query)
 }
 
 func (c *command) Ping(ctx context.Context) error {
