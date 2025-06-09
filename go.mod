@@ -1,4 +1,4 @@
-module github.com/reyhanmichiels/go-pkg
+module github.com/reyhanmichiels/go-pkg/v2
 
 go 1.22.1
 
