@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/reyhanmichiels/go-pkg/errors"
-	"github.com/reyhanmichiels/go-pkg/log"
+	"github.com/reyhanmichiels/go-pkg/v2/errors"
+	"github.com/reyhanmichiels/go-pkg/v2/log"
 )
 
 type CommandTx interface {

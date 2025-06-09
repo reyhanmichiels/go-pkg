@@ -12,7 +12,7 @@ package mock_sql
 import (
 	reflect "reflect"
 
-	sql "github.com/reyhanmichiels/go-pkg/sql"
+	sql "github.com/reyhanmichiels/go-pkg/v2/sql"
 	gomock "go.uber.org/mock/gomock"
 )
 

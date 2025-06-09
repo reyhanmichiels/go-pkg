@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	auth "github.com/reyhanmichiels/go-pkg/auth"
+	auth "github.com/reyhanmichiels/go-pkg/v2/auth"
 	gomock "go.uber.org/mock/gomock"
 )
 

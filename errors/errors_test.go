@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/reyhanmichiels/go-pkg/codes"
-	"github.com/reyhanmichiels/go-pkg/language"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/language"
 	"github.com/stretchr/testify/assert"
 )
 

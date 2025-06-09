@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github.com/reyhanmichiels/go-pkg/log"
+	"github.com/reyhanmichiels/go-pkg/v2/log"
 )
 
 type Parser interface {

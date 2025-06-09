@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/reyhanmichiels/go-pkg/null"
+	"github.com/reyhanmichiels/go-pkg/v2/null"
 )
 
 /*

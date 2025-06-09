@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/reyhanmichiels/go-pkg/log"
+	"github.com/reyhanmichiels/go-pkg/v2/log"
 	"github.com/ulule/limiter/v3"
 	"github.com/ulule/limiter/v3/drivers/store/memory"
 )

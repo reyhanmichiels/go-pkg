@@ -3,7 +3,7 @@ package codes
 import (
 	"net/http"
 
-	"github.com/reyhanmichiels/go-pkg/language"
+	"github.com/reyhanmichiels/go-pkg/v2/language"
 )
 
 type Message struct {

@@ -5,9 +5,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/reyhanmichiels/go-pkg/appcontext"
-	"github.com/reyhanmichiels/go-pkg/codes"
-	myerr "github.com/reyhanmichiels/go-pkg/errors"
+	"github.com/reyhanmichiels/go-pkg/v2/appcontext"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	myerr "github.com/reyhanmichiels/go-pkg/v2/errors"
 )
 
 func Test_log_Info(t *testing.T) {

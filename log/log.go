@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/reyhanmichiels/go-pkg/appcontext"
-	"github.com/reyhanmichiels/go-pkg/errors"
+	"github.com/reyhanmichiels/go-pkg/v2/appcontext"
+	"github.com/reyhanmichiels/go-pkg/v2/errors"
 )
 
 var (

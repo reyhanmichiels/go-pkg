@@ -3,7 +3,7 @@ package errors
 import (
 	"testing"
 
-	"github.com/reyhanmichiels/go-pkg/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
 )
 
 func Test_stacktrace_Error(t *testing.T) {

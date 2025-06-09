@@ -3,7 +3,7 @@ package codes
 import (
 	"testing"
 
-	"github.com/reyhanmichiels/go-pkg/language"
+	"github.com/reyhanmichiels/go-pkg/v2/language"
 	"github.com/stretchr/testify/assert"
 )
 

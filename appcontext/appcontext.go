@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/reyhanmichiels/go-pkg/codes"
-	"github.com/reyhanmichiels/go-pkg/header"
-	"github.com/reyhanmichiels/go-pkg/language"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/header"
+	"github.com/reyhanmichiels/go-pkg/v2/language"
 )
 
 type contextKey string

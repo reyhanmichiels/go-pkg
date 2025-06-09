@@ -7,10 +7,10 @@ import (
 	"sync"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/reyhanmichiels/go-pkg/codes"
-	"github.com/reyhanmichiels/go-pkg/errors"
-	"github.com/reyhanmichiels/go-pkg/operator"
-	"github.com/reyhanmichiels/go-pkg/sql"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/errors"
+	"github.com/reyhanmichiels/go-pkg/v2/operator"
+	"github.com/reyhanmichiels/go-pkg/v2/sql"
 )
 
 type Option struct {

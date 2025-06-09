@@ -9,11 +9,11 @@ import (
 	"github.com/go-playground/locales/en"
 	"github.com/go-playground/locales/id"
 	ut "github.com/go-playground/universal-translator"
-	"github.com/reyhanmichiels/go-pkg/appcontext"
-	"github.com/reyhanmichiels/go-pkg/codes"
-	"github.com/reyhanmichiels/go-pkg/errors"
-	"github.com/reyhanmichiels/go-pkg/language"
-	"github.com/reyhanmichiels/go-pkg/log"
+	"github.com/reyhanmichiels/go-pkg/v2/appcontext"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/errors"
+	"github.com/reyhanmichiels/go-pkg/v2/language"
+	"github.com/reyhanmichiels/go-pkg/v2/log"
 )
 
 type Interface interface {

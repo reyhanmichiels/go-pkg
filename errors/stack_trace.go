@@ -1,7 +1,7 @@
 package errors
 
 import (
-	"github.com/reyhanmichiels/go-pkg/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
 )
 
 type stacktrace struct {

@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/reyhanmichiels/go-pkg/appcontext"
-	"github.com/reyhanmichiels/go-pkg/checker"
-	"github.com/reyhanmichiels/go-pkg/codes"
-	"github.com/reyhanmichiels/go-pkg/errors"
+	"github.com/reyhanmichiels/go-pkg/v2/appcontext"
+	"github.com/reyhanmichiels/go-pkg/v2/checker"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/errors"
 	"github.com/ulule/limiter/v3"
 	mgin "github.com/ulule/limiter/v3/drivers/middleware/gin"
 )

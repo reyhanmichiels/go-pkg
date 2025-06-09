@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/reyhanmichiels/go-pkg/files"
+	"github.com/reyhanmichiels/go-pkg/v2/files"
 	"github.com/spf13/viper"
 )
 

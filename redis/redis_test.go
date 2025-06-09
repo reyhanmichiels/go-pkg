@@ -10,7 +10,7 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/bsm/redislock"
 	"github.com/redis/go-redis/v9"
-	mock_log "github.com/reyhanmichiels/go-pkg/tests/mock/log"
+	mock_log "github.com/reyhanmichiels/go-pkg/v2/tests/mock/log"
 	"go.uber.org/mock/gomock"
 )
 

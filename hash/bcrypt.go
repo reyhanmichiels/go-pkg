@@ -1,8 +1,8 @@
 package hash
 
 import (
-	"github.com/reyhanmichiels/go-pkg/codes"
-	"github.com/reyhanmichiels/go-pkg/errors"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/errors"
 	bcryptLib "golang.org/x/crypto/bcrypt"
 )
 

@@ -2,9 +2,9 @@ package parser
 
 import (
 	jsoniter "github.com/json-iterator/go"
-	"github.com/reyhanmichiels/go-pkg/codes"
-	"github.com/reyhanmichiels/go-pkg/errors"
-	"github.com/reyhanmichiels/go-pkg/log"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/errors"
+	"github.com/reyhanmichiels/go-pkg/v2/log"
 )
 
 type jsonConfig string

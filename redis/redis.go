@@ -8,9 +8,9 @@ import (
 
 	"github.com/bsm/redislock"
 	"github.com/redis/go-redis/v9"
-	"github.com/reyhanmichiels/go-pkg/codes"
-	"github.com/reyhanmichiels/go-pkg/errors"
-	"github.com/reyhanmichiels/go-pkg/log"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/errors"
+	"github.com/reyhanmichiels/go-pkg/v2/log"
 )
 
 var ErrNotObtained = redislock.ErrNotObtained

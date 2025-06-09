@@ -3,8 +3,8 @@ package codes
 import (
 	"math"
 
-	"github.com/reyhanmichiels/go-pkg/language"
-	"github.com/reyhanmichiels/go-pkg/operator"
+	"github.com/reyhanmichiels/go-pkg/v2/language"
+	"github.com/reyhanmichiels/go-pkg/v2/operator"
 )
 
 type Code uint32

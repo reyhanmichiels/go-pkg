@@ -7,9 +7,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/reyhanmichiels/go-pkg/codes"
-	"github.com/reyhanmichiels/go-pkg/language"
-	"github.com/reyhanmichiels/go-pkg/operator"
+	"github.com/reyhanmichiels/go-pkg/v2/codes"
+	"github.com/reyhanmichiels/go-pkg/v2/language"
+	"github.com/reyhanmichiels/go-pkg/v2/operator"
 )
 
 type App struct {
