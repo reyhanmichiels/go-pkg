@@ -144,19 +144,19 @@ func (s *sqlBuilder) BuildUpdate(updateParam interface{}, queryParam interface{}
 
 	group.Wait()
 
-	newQueryParam, newQueryArgs, err := sqlx.In(s.rawQuery.String()+";", s.fieldValues...)
-	if err != nil {
-		return "", nil, err
-	}
-	newQueryParam = s.db.Rebind(newQueryParam)
-
-	if strings.TrimSpace(newQueryParam) == "WHERE 1=1;" || strings.TrimSpace(s.rawUpdate.String()) == "SET" {
+	if strings.TrimSpace(s.rawQuery.String()) == "WHERE 1=1" || strings.TrimSpace(s.rawUpdate.String()) == "SET" {
 		return "", nil, errors.NewWithCode(codes.CodeInvalidValue, "generated query or update clause cannot be empty")
 	}
 
-	newQuery = s.rawUpdate.String() + newQueryParam
-	newArgs = append(newArgs, s.updateValues...)
-	newArgs = append(newArgs, newQueryArgs...)
+	newRawQuery := s.rawUpdate.String() + s.rawQuery.String() + ";"
+	newRawArgs := append(s.updateValues, s.fieldValues...)
+
+	newQuery, newArgs, err := sqlx.In(newRawQuery, newRawArgs...)
+	if err != nil {
+		return "", nil, err
+	}
+
+	newQuery = s.db.Rebind(newQuery)
 
 	return newQuery, newArgs, nil
 }
