@@ -18,6 +18,8 @@ type CommandTx interface {
 	Query(name string, query string, args ...interface{}) (*sqlx.Rows, error)
 	Get(name string, query string, dest interface{}, args ...interface{}) error
 
+	Prepare(name string, query string) (CommandStmt, error)
+	PrepareNamed(name string, query string) (NamedCommandStmt, error)
 	NamedExec(name string, query string, args interface{}) (sql.Result, error)
 	Exec(name string, query string, args ...interface{}) (sql.Result, error)
 }
@@ -74,6 +76,28 @@ func (x *commandTx) NamedExec(name string, query string, args interface{}) (sql.
 		x.log.Info(x.ctx, fmt.Sprintf(queryLogMessage, name, replaceBindVarsWithArgs(query)))
 	}
 	return x.tx.NamedExecContext(x.ctx, query, args)
+}
+
+func (x *commandTx) Prepare(name string, query string) (CommandStmt, error) {
+	if x.logQuery {
+		x.log.Info(x.ctx, fmt.Sprintf(queryLogMessage, name, replaceBindVarsWithArgs(query)))
+	}
+	stmt, err := x.tx.PreparexContext(x.ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	return initStmt(x.ctx, stmt), nil
+}
+
+func (x *commandTx) PrepareNamed(name string, query string) (NamedCommandStmt, error) {
+	if x.logQuery {
+		x.log.Info(x.ctx, fmt.Sprintf(queryLogMessage, name, replaceBindVarsWithArgs(query)))
+	}
+	stmt, err := x.tx.PrepareNamedContext(x.ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	return initNamedStmt(x.ctx, stmt), nil
 }
 
 func (x *commandTx) Exec(name string, query string, args ...interface{}) (sql.Result, error) {

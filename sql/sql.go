@@ -32,6 +32,8 @@ type Interface interface {
 	Query(ctx context.Context, name string, query string, args ...interface{}) (*sqlx.Rows, error)
 	Get(ctx context.Context, name string, query string, dest interface{}, args ...interface{}) error
 
+	Prepare(ctx context.Context, name string, query string) (CommandStmt, error)
+	PrepareNamed(ctx context.Context, name string, query string) (NamedCommandStmt, error)
 	NamedExec(ctx context.Context, name string, query string, args interface{}) (sql.Result, error)
 	Exec(ctx context.Context, name string, query string, args ...interface{}) (sql.Result, error)
 	Transaction(ctx context.Context, name string, txOpts TxOptions, f func(context.Context) error) error
@@ -121,6 +123,20 @@ func (s *sqlDB) Query(ctx context.Context, name string, query string, args ...in
 
 func (s *sqlDB) Get(ctx context.Context, name string, query string, dest interface{}, args ...interface{}) error {
 	return s.follower.Get(ctx, name, query, dest, args...)
+}
+
+func (s *sqlDB) Prepare(ctx context.Context, name string, query string) (CommandStmt, error) {
+	if tx, ok := s.getTx(ctx); ok {
+		return tx.Prepare(name, query)
+	}
+	return s.leader.Prepare(ctx, name, query)
+}
+
+func (s *sqlDB) PrepareNamed(ctx context.Context, name string, query string) (NamedCommandStmt, error) {
+	if tx, ok := s.getTx(ctx); ok {
+		return tx.PrepareNamed(name, query)
+	}
+	return s.leader.PrepareNamed(ctx, name, query)
 }
 
 func (s *sqlDB) NamedExec(ctx context.Context, name string, query string, args interface{}) (sql.Result, error) {
