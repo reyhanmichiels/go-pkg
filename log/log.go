@@ -90,7 +90,7 @@ func Init(cfg Config) Interface {
 		switch cfg.Output {
 		case OutputFile:
 			if cfg.LumberjackConfig.Filename == "" {
-				log.Panic("filename cannot be empty")
+				log.Fatal("filename cannot be empty")
 			}
 
 			logFile := lumberjack.Logger{
