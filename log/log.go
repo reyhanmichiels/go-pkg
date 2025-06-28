@@ -3,6 +3,7 @@ package log
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"log/slog"
 	"os"
@@ -82,6 +83,8 @@ func Init(cfg Config) Interface {
 	var slogLogger *slog.Logger
 
 	once.Do(func() {
+		var writer io.Writer
+
 		level, err := parsingLogLevel(cfg.Level)
 		if err != nil {
 			log.Panic(err)
@@ -101,18 +104,16 @@ func Init(cfg Config) Interface {
 				Compress:   cfg.LumberjackConfig.Compress,
 			}
 
-			slogLogger = slog.New(slog.NewJSONHandler(&logFile, &slog.HandlerOptions{
-				Level:       level,
-				AddSource:   true,
-				ReplaceAttr: getCustomLevelName,
-			}))
+			writer = &logFile
 		default:
-			slogLogger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-				Level:       level,
-				AddSource:   true,
-				ReplaceAttr: getCustomLevelName,
-			}))
+			writer = os.Stdout
 		}
+
+		slogLogger = slog.New(slog.NewJSONHandler(writer, &slog.HandlerOptions{
+			Level:       level,
+			AddSource:   true,
+			ReplaceAttr: getCustomLevelName,
+		}))
 	})
 
 	return &logger{
