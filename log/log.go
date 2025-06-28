@@ -13,6 +13,7 @@ import (
 
 	"github.com/reyhanmichiels/go-pkg/v2/appcontext"
 	"github.com/reyhanmichiels/go-pkg/v2/errors"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var (
@@ -35,6 +36,8 @@ const (
 	// customize slog level
 	LevelFatal = slog.Level(10)
 	LevelPanic = slog.Level(12)
+
+	OutputFile = "file"
 )
 
 type Interface interface {
@@ -47,7 +50,18 @@ type Interface interface {
 }
 
 type Config struct {
-	Level string
+	Level  string
+	Output string
+
+	LumberjackConfig LumbejackConfig
+}
+
+type LumbejackConfig struct {
+	Filename   string
+	MaxSize    int
+	MaxBackups int
+	MaxAge     int
+	Compress   bool
 }
 
 type logger struct {
@@ -73,11 +87,32 @@ func Init(cfg Config) Interface {
 			log.Panic(err)
 		}
 
-		slogLogger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-			Level:       level,
-			AddSource:   true,
-			ReplaceAttr: getCustomLevelName,
-		}))
+		switch cfg.Output {
+		case OutputFile:
+			if cfg.LumberjackConfig.Filename == "" {
+				log.Panic("filename cannot be empty")
+			}
+
+			logFile := lumberjack.Logger{
+				Filename:   cfg.LumberjackConfig.Filename,
+				MaxSize:    cfg.LumberjackConfig.MaxSize,
+				MaxBackups: cfg.LumberjackConfig.MaxBackups,
+				MaxAge:     cfg.LumberjackConfig.MaxAge,
+				Compress:   cfg.LumberjackConfig.Compress,
+			}
+
+			slogLogger = slog.New(slog.NewJSONHandler(&logFile, &slog.HandlerOptions{
+				Level:       level,
+				AddSource:   true,
+				ReplaceAttr: getCustomLevelName,
+			}))
+		default:
+			slogLogger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+				Level:       level,
+				AddSource:   true,
+				ReplaceAttr: getCustomLevelName,
+			}))
+		}
 	})
 
 	return &logger{
