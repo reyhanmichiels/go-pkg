@@ -38,7 +38,8 @@ const (
 	LevelFatal = slog.Level(10)
 	LevelPanic = slog.Level(12)
 
-	OutputFile = "file"
+	OutputFile         = "file"
+	OutputFileNConsole = "both"
 )
 
 type Interface interface {
@@ -105,6 +106,20 @@ func Init(cfg Config) Interface {
 			}
 
 			writer = &logFile
+		case OutputFileNConsole:
+			if cfg.LumberjackConfig.Filename == "" {
+				log.Fatal("filename cannot be empty")
+			}
+
+			logFile := lumberjack.Logger{
+				Filename:   cfg.LumberjackConfig.Filename,
+				MaxSize:    cfg.LumberjackConfig.MaxSize,
+				MaxBackups: cfg.LumberjackConfig.MaxBackups,
+				MaxAge:     cfg.LumberjackConfig.MaxAge,
+				Compress:   cfg.LumberjackConfig.Compress,
+			}
+
+			writer = io.MultiWriter(&logFile, os.Stdout)
 		default:
 			writer = os.Stdout
 		}
