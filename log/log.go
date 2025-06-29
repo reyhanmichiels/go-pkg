@@ -38,8 +38,8 @@ const (
 	LevelFatal = slog.Level(10)
 	LevelPanic = slog.Level(12)
 
-	OutputFile         = "file"
-	OutputFileNConsole = "both"
+	OutputFile    = "file"
+	OutputConsole = "console"
 )
 
 type Interface interface {
@@ -53,7 +53,7 @@ type Interface interface {
 
 type Config struct {
 	Level  string
-	Output string
+	Output []string
 
 	LumberjackConfig LumbejackConfig
 }
@@ -84,45 +84,41 @@ func Init(cfg Config) Interface {
 	var slogLogger *slog.Logger
 
 	once.Do(func() {
-		var writer io.Writer
+		var writers []io.Writer
 
 		level, err := parsingLogLevel(cfg.Level)
 		if err != nil {
 			log.Panic(err)
 		}
 
-		switch cfg.Output {
-		case OutputFile:
-			if cfg.LumberjackConfig.Filename == "" {
-				log.Fatal("filename cannot be empty")
-			}
+		for _, o := range cfg.Output {
+			switch o {
+			case OutputFile:
+				if cfg.LumberjackConfig.Filename == "" {
+					log.Fatal("filename cannot be empty")
+				}
 
-			logFile := lumberjack.Logger{
-				Filename:   cfg.LumberjackConfig.Filename,
-				MaxSize:    cfg.LumberjackConfig.MaxSize,
-				MaxBackups: cfg.LumberjackConfig.MaxBackups,
-				MaxAge:     cfg.LumberjackConfig.MaxAge,
-				Compress:   cfg.LumberjackConfig.Compress,
-			}
+				logFile := lumberjack.Logger{
+					Filename:   cfg.LumberjackConfig.Filename,
+					MaxSize:    cfg.LumberjackConfig.MaxSize,
+					MaxBackups: cfg.LumberjackConfig.MaxBackups,
+					MaxAge:     cfg.LumberjackConfig.MaxAge,
+					Compress:   cfg.LumberjackConfig.Compress,
+				}
 
-			writer = &logFile
-		case OutputFileNConsole:
-			if cfg.LumberjackConfig.Filename == "" {
-				log.Fatal("filename cannot be empty")
+				writers = append(writers, &logFile)
+			case OutputConsole:
+				writers = append(writers, os.Stdout)
+			default:
+				log.Printf("unsupported output type: %s", o)
 			}
-
-			logFile := lumberjack.Logger{
-				Filename:   cfg.LumberjackConfig.Filename,
-				MaxSize:    cfg.LumberjackConfig.MaxSize,
-				MaxBackups: cfg.LumberjackConfig.MaxBackups,
-				MaxAge:     cfg.LumberjackConfig.MaxAge,
-				Compress:   cfg.LumberjackConfig.Compress,
-			}
-
-			writer = io.MultiWriter(&logFile, os.Stdout)
-		default:
-			writer = os.Stdout
 		}
+
+		if len(writers) == 0 {
+			writers = append(writers, os.Stdout)
+		}
+
+		writer := io.MultiWriter(writers...)
 
 		slogLogger = slog.New(slog.NewJSONHandler(writer, &slog.HandlerOptions{
 			Level:       level,
