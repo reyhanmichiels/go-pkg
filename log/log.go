@@ -3,6 +3,7 @@ package log
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"log/slog"
 	"os"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/reyhanmichiels/go-pkg/v2/appcontext"
 	"github.com/reyhanmichiels/go-pkg/v2/errors"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var (
@@ -35,6 +37,9 @@ const (
 	// customize slog level
 	LevelFatal = slog.Level(10)
 	LevelPanic = slog.Level(12)
+
+	OutputFile    = "file"
+	OutputConsole = "console"
 )
 
 type Interface interface {
@@ -47,7 +52,18 @@ type Interface interface {
 }
 
 type Config struct {
-	Level string
+	Level  string
+	Output []string
+
+	LumberjackConfig LumbejackConfig
+}
+
+type LumbejackConfig struct {
+	Filename   string
+	MaxSize    int
+	MaxBackups int
+	MaxAge     int
+	Compress   bool
 }
 
 type logger struct {
@@ -68,12 +84,43 @@ func Init(cfg Config) Interface {
 	var slogLogger *slog.Logger
 
 	once.Do(func() {
+		var writers []io.Writer
+
 		level, err := parsingLogLevel(cfg.Level)
 		if err != nil {
 			log.Panic(err)
 		}
 
-		slogLogger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		for _, o := range cfg.Output {
+			switch o {
+			case OutputFile:
+				if cfg.LumberjackConfig.Filename == "" {
+					log.Fatal("filename cannot be empty")
+				}
+
+				logFile := lumberjack.Logger{
+					Filename:   cfg.LumberjackConfig.Filename,
+					MaxSize:    cfg.LumberjackConfig.MaxSize,
+					MaxBackups: cfg.LumberjackConfig.MaxBackups,
+					MaxAge:     cfg.LumberjackConfig.MaxAge,
+					Compress:   cfg.LumberjackConfig.Compress,
+				}
+
+				writers = append(writers, &logFile)
+			case OutputConsole:
+				writers = append(writers, os.Stdout)
+			default:
+				log.Printf("unsupported output type: %s", o)
+			}
+		}
+
+		if len(writers) == 0 {
+			writers = append(writers, os.Stdout)
+		}
+
+		writer := io.MultiWriter(writers...)
+
+		slogLogger = slog.New(slog.NewJSONHandler(writer, &slog.HandlerOptions{
 			Level:       level,
 			AddSource:   true,
 			ReplaceAttr: getCustomLevelName,
